@@ -6,7 +6,7 @@ import requests
 import webbrowser
 
 # Tag options to select
-switch_options = ['a', 'title', 'p', 'Full HTML', 'Get All Text']
+switch_options = ['a', 'title', 'p', 'Full HTML', 'Get All Text', 'span']
 
 customtkinter.set_appearance_mode("Dark")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("dark-blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -21,7 +21,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("scrapeApp1.0.py")
-        self.geometry(f"{1100}x{580}")
+        self.geometry(f"{1150}x{500}")
 
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
@@ -32,9 +32,9 @@ class App(customtkinter.CTk):
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, rowspan=4, sticky="nsew")
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
-        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Overland Technical Solutions", font=customtkinter.CTkFont(size=20, weight="bold"))
+        self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Overland Technical\nSolutions:\nWeb Scraper", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
-        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="Overland Technical Solutions", command=self.sidebar_button_event)
+        self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="About Overland", command=self.sidebar_button_event)
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
         self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Google Web Search", command=self.sidebar_button_event2)
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
@@ -57,7 +57,6 @@ class App(customtkinter.CTk):
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Scrape URL", command=self.scrape_button_press, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
         self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
-        
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=650)
         self.textbox.grid(row=0, rowspan=2, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
@@ -75,12 +74,18 @@ class App(customtkinter.CTk):
             if switch_options[i] != 'a' : # Disabling everything but the 'a' search option.
                 self.scrollable_frame_switches[i].toggle()             
 
-        # Donate to me please?
+        # Donate to me please? Broke dad with four kids and relevant experience - I could really use a dev job too!
         self.donate = customtkinter.CTkButton(master=self, text="Donate to the Creator!", command=self.donate_button_press, border_width=2)
         self.donate.grid(row=1, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         # set default value for Textbox
-        self.textbox.insert(0.0, "Welcome to my rudimentary web scraper! I plan to use this to create web scraping apps, and we'll see where it goes from here!\n\n")
+        self.textbox.insert(0.0, '''Welcome to my rudimentary web scraper!
+You can use the output of these queries to build web scraping tools, or
+to query specific websites for an actionable DOM tree.\n
+Use the 'Google Web Search to the left to pre-fill a search URL for Google.
+In the future, I plan to add the capability to build a custom input for querying
+the DOM, to make it a one-size-fits-all tool. 
+''')
         
 
     def change_appearance_mode_event(self, new_appearance_mode: str):
