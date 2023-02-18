@@ -23,6 +23,9 @@ class App(customtkinter.CTk):
         self.title("OSA_V1.0.py")
         self.geometry(f"{1150}x{500}")
 
+        self.bind('<Return>', self.scrape_button_press)
+        self.bind('<g>', self.sidebar_button_event2)
+        self.bind('<w>', self.sidebar_button_event3)
         # configure grid layout (4x4)
         self.grid_columnconfigure(1, weight=1)
         self.grid_columnconfigure((1, 3), weight=0)
@@ -36,10 +39,14 @@ class App(customtkinter.CTk):
         self.logo_label.grid(row=0, column=0, padx=20, pady=(20, 10))
         self.sidebar_button_1 = customtkinter.CTkButton(self.sidebar_frame, text="About Overland", command=self.sidebar_button_event)
         self.sidebar_button_1.grid(row=1, column=0, padx=20, pady=10)
-        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Google Web Search", command=self.sidebar_button_event2)
+        self.sidebar_button_2 = customtkinter.CTkButton(self.sidebar_frame, text="Google Web Search")
         self.sidebar_button_2.grid(row=2, column=0, padx=20, pady=10)
-        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, text="Wikipedia Search", command=self.sidebar_button_event3)
+        self.sidebar_button_2.bind('<g>', self.sidebar_button_event2)
+        self.sidebar_button_2.bind('<Button-1>', self.sidebar_button_event2)
+        self.sidebar_button_3 = customtkinter.CTkButton(self.sidebar_frame, text="Wikipedia Search")
         self.sidebar_button_3.grid(row=3, column=0, padx=20, pady=10)
+        self.sidebar_button_3.bind('<w>', self.sidebar_button_event3)
+        self.sidebar_button_3.bind('<Button-1>', self.sidebar_button_event3)
         self.appearance_mode_label = customtkinter.CTkLabel(self.sidebar_frame, text="Appearance Mode:", anchor="w")
         self.appearance_mode_label.grid(row=5, column=0, padx=20, pady=(10, 0))
         self.appearance_mode_optionemenu = customtkinter.CTkOptionMenu(self.sidebar_frame, values=["Dark (Default)", "Light", "System"],
@@ -54,27 +61,29 @@ class App(customtkinter.CTk):
         # create main entry and button
         self.entry = customtkinter.CTkEntry(self, placeholder_text="Input URL Here")
         self.entry.grid(row=3, column=1, columnspan=2, padx=(20, 0), pady=(20, 20), sticky="nsew")
-        self.main_button_1 = customtkinter.CTkButton(master=self, text="Scrape URL", command=self.scrape_button_press, fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
+        self.main_button_1 = customtkinter.CTkButton(master=self, text="Scrape URL", fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
         self.main_button_1.grid(row=3, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
+        self.main_button_1.bind('<Button-1>', self.scrape_button_press)
 
         # create textbox
         self.textbox = customtkinter.CTkTextbox(self, width=650)
         self.textbox.grid(row=0, rowspan=2, column=1, padx=(20, 0), pady=(20, 0), sticky="nsew")
 
         # create scrollable frame
-        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="Scraping Options")
+        self.scrollable_frame = customtkinter.CTkScrollableFrame(self, label_text="DOM Search Options")
         self.scrollable_frame.grid(row=0, rowspan=1, column=3, padx=(20, 0), pady=(20, 0), sticky="nsew")
         self.scrollable_frame.grid_columnconfigure(0, weight=1)
         self.scrollable_frame_switches = [] # Initializing array for Switch objects
         for i in range(len(switch_options)): # Creating Switches from the switch options, instating them into the grid
-            switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=switch_options[i])
-            switch.grid(row=i, column=0, padx=10, pady=(0, 20))
-            self.scrollable_frame_switches.append(switch)
-            self.scrollable_frame_switches[i].select()
-            if switch_options[i] != 'a' : # Disabling everything but the 'a' search option.
-                self.scrollable_frame_switches[i].toggle()             
+            switch = customtkinter.CTkSwitch(master=self.scrollable_frame, text=switch_options[i]) # Creating the switches
+            switch.grid(row=i, column=0, padx=10, pady=(0, 20)) # Grid them
+            self.scrollable_frame_switches.append(switch) # Add to array above
+            self.scrollable_frame_switches[i].select() # Enable all switches
+            self.bind(str(i+1), self.scrollable_frame_switches[i].toggle) # bind number keys to app for toggling
+            if switch_options[i] != 'a' : # Setting Default search option
+                self.scrollable_frame_switches[i].toggle()
 
-        # Donate to me please? Broke dad with four kids and relevant experience - I could really use a dev job too!
+        # Donate to me please? Broke dad with four kids and relevant experience - I could really use a dev job!
         self.donate = customtkinter.CTkButton(master=self, text="Donate to the Creator", command=self.donate_button_press, border_width=2)
         self.donate.grid(row=1, column=3, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
@@ -83,11 +92,11 @@ class App(customtkinter.CTk):
 You can use the output of these queries to build web scraping tools, or
 to query specific websites for an actionable DOM tree.
 
-Use the 'Google Web Search to the left to pre-fill a search URL for Google.
+Use the 'Google Web Search to the left to pre-fill a search URL for Google or Wikipedia.
 In the future, I plan to add the capability to build a custom input for querying
-the DOM, to make it a one-size-fits-all tool. 
+the DOM and combining searches, to make it a one-size-fits-all tool.
 ''')
-        
+    # Bind the Enter Key to the window
 
     def change_appearance_mode_event(self, new_appearance_mode: str): # Function to update Appearance defaults that TKInter allows
         customtkinter.set_appearance_mode(new_appearance_mode)
@@ -99,18 +108,18 @@ the DOM, to make it a one-size-fits-all tool.
     def sidebar_button_event(self): # Clicking the 'about overland' button will take you to my website
         webbrowser.open('http://www.overlandtechnicalsolutions.com', new=2)
 
-    def sidebar_button_event2(self): # fill Entry box with Google Search default URL 
+    def sidebar_button_event2(self, event): # fill Entry box with Google Search default URL 
         self.entry.delete(0, tkinter.END)
         self.entry.insert(0, "https://www.google.com/search?q=")
 
-    def sidebar_button_event3(self): # fill Entry box with Google Search default URL 
+    def sidebar_button_event3(self, event): # fill Entry box with Google Search default URL 
         self.entry.delete(0, tkinter.END)
         self.entry.insert(0, "https://en.wikipedia.org/wiki/")        
 
     def donate_button_press(self): # Open CashApp for donations
         webbrowser.open('https://cash.app/$Jrags2010', new=2)
 
-    def scrape_button_press(self):
+    def scrape_button_press(self, event):
         # Clear the textbox
         self.textbox.delete("0.0", tkinter.END)
         #  Perform Request for data based on input from self.entry
@@ -152,8 +161,6 @@ the DOM, to make it a one-size-fits-all tool.
             else: # If a Switch is disabled
                 i += 1
         
-
-
 # BS4 Documentation for reference - https://www.crummy.com/software/BeautifulSoup/bs4/doc/
 
 # Call Main loop
